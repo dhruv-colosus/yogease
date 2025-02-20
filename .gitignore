@@ -1,5 +1,4 @@
 app/
-srv/sample-dataset/
 srv/venv
 srv/__pycache__
 
