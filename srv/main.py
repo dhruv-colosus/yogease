@@ -170,7 +170,7 @@ def generate_correction_feedback(correction_metric, angle_differences, depth_met
 
 
 
-@app.websocket("/predict")
+@app.websocket("/ws/predict")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     try:
