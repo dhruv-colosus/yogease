@@ -25,7 +25,9 @@ export const usePoseWebSocket = (keypoints: Keypoint[]) => {
   const websocketRef = useRef<WebSocket | null>(null);
 
   useEffect(() => {
-    websocketRef.current = new WebSocket(import.meta.env.REACT_APP_BACKEND_WS);
+    websocketRef.current = new WebSocket(
+      "wss://yoga.dhruvdeora.com/ws/predict"
+    );
 
     websocketRef.current.onopen = () => {
       console.log("WebSocket connected");
