@@ -2,27 +2,23 @@ import { useState, useEffect, useRef } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Camera as Cam, BatteryMedium, Check } from "lucide-react";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Pose } from '@mediapipe/pose';
-import { Camera } from '@mediapipe/camera_utils';
-import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils';
+// import { Pose } from '@mediapipe/pose';
+// import { Camera } from '@mediapipe/camera_utils';
+// import { drawConnectors, drawLandmarks } from '@mediapipe/drawing_utils';
 import PosePrediction from "@/components/pose-prediction";
 import { usePoseWebSocket } from '../utils/usePoseWebSocket';
 import PoseCorrections from '../components/PoseCorrections';
 import PoseCorrectionsMobile from "@/components/pose-correction-mobile";
 import PosePredictionMobile from "@/components/pose-prediction-mobile";
 
-const feedbackMessages = [
-  "Straighten your back slightly",
-  "Lower your shoulders",
-  "Great form! Hold this position",
-  "Lift your chin up a bit",
-  "Align your feet with your shoulders",
-  "Breathe deeply and maintain position",
-  "Perfect balance! Keep it steady",
-  "Adjust your right arm angle",
-  "Excellent progress!",
-  "Remember to keep breathing naturally"
-];
+declare global {
+  interface Window {
+    Pose: any;
+    Camera: any;
+    drawConnectors: any;
+    drawLandmarks: any;
+  }
+}
 
 interface Keypoint {
   point: number;
@@ -69,6 +65,11 @@ const Yoga = () => {
   useEffect(() => {
     if (!videoRef.current || !canvasRef.current) return;
 
+    if (!window.Pose || !window.Camera) {
+      console.error("MediaPipe libraries not loaded");
+      return;
+    }
+
     const videoElement = videoRef.current;
     const canvasElement = canvasRef.current;
     const canvasCtx = canvasElement.getContext('2d');
@@ -79,9 +80,8 @@ const Yoga = () => {
     canvasElement.width = 640;
     canvasElement.height = 480;
 
-    const pose = new Pose({
-      locateFile: (file) =>
-        `https://cdn.jsdelivr.net/npm/@mediapipe/pose/${file}`,
+    const pose = new window.Pose({
+      locateFile: (file) => `/mediapipe/${file}`,
 
     });
 
@@ -109,7 +109,7 @@ const Yoga = () => {
         setKeypoints(newKeypoints);
         console.log('Pose Landmarks:', newKeypoints);
 
-        drawConnectors(
+        window.drawConnectors(
           canvasCtx,
           results.poseLandmarks,
           [[0, 1], [1, 2], [2, 3], [3, 7], [0, 4], [4, 5], [5, 6], [6, 8], [9, 10],
@@ -120,7 +120,7 @@ const Yoga = () => {
           { color: 'rgb(255, 215, 184,0.5)', lineWidth: 2 }
         );
 
-        drawLandmarks(canvasCtx, results.poseLandmarks, {
+        window.drawLandmarks(canvasCtx, results.poseLandmarks, {
           color: 'rgb(255, 111, 0,0.6)',
           lineWidth: 1,
           radius: 3,
@@ -129,7 +129,7 @@ const Yoga = () => {
       canvasCtx.restore();
     });
 
-    const camera = new Camera(videoElement, {
+    const camera = new window.Camera(videoElement, {
       onFrame: async () => {
         await pose.send({ image: videoElement });
       },
