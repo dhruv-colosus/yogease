@@ -1,0 +1,7 @@
+app/
+srv/sample-dataset/
+srv/venv
+srv/__pycache__
+
+frontend/node_modules
+**/.env
